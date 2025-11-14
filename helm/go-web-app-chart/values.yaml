@@ -4,7 +4,7 @@ image:
   repository: vineethm8/go-web-app
   pullPolicy: IfNotPresent
   # tag is the version of the image to use
-  tag: "19351953254"
+  tag: "19351977567"
 
 
 ingress:
