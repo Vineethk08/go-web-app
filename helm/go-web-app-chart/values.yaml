@@ -1,0 +1,19 @@
+replicaCount: 1
+
+image:
+  repository: vineethm8/go-web-app
+  pullPolicy: IfNotPresent
+  # tag is the version of the image to use
+  tag: "v1"
+
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+ 

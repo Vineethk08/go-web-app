@@ -1,4 +1,4 @@
-FROM golang:1.22 as base   
+FROM golang:1.22 AS base   
 
 # Use the official Golang image as the base image, if error occurs check go.mod file for version
 
