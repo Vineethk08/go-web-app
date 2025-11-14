@@ -1,0 +1,53 @@
+# Continuous Deployment to EKS
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI/CD"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --name go-web-app --region us-east-1
+
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: 'latest'
+
+    - name: Deploy to EKS using Helm
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+      run: |
+        helm upgrade --install go-web-app ./helm/go-web-app-chart \
+          --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/go-web-app \
+          --set image.tag=${{ github.event.workflow_run.id }} \
+          --wait \
+          --timeout 5m
+
+    - name: Verify deployment
+      run: |
+        kubectl get pods -l app=go-web-app
+        kubectl get services go-web-app-service
+        kubectl get ingress go-web-app
+
