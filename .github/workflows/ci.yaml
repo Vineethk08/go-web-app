@@ -79,6 +79,8 @@ jobs:
 
   update-newtag-in-helm-chart:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     needs: push
 
@@ -86,7 +88,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        token: ${{ secrets.TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
 
     - name: Update tag in Helm chart
